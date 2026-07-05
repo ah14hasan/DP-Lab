@@ -1,61 +1,37 @@
-// ===== Subject (common interface for both Real and Proxy) =====
-interface Image {
-    void display();
+// Subject
+interface Account {
+    void pay(int amount);
 }
 
-// ===== Real Subject (the expensive object we want to defer creating) =====
-class RealImage implements Image {
-    private final String filename;
-
-    public RealImage(String filename) {
-        this.filename = filename;
-        loadFromDisk();   // simulate an expensive operation
-    }
-
-    private void loadFromDisk() {
-        System.out.println("Loading " + filename + " from disk... (expensive!)");
-    }
-
-    public void display() {
-        System.out.println("Displaying " + filename);
-    }
+// RealSubject
+class BankAccount implements Account {
+    public void pay(int amount) 
+    { System.out.println("Paid " + amount + " from bank account"); }
 }
 
-// ===== Proxy (stand-in that controls access to RealImage) =====
-class ImageProxy implements Image {
-    private final String filename;
-    private RealImage realImage;   // created lazily
+// Proxy
+class CreditCard implements Account {
+    private final BankAccount bankAccount = new BankAccount();
+    private final int limit = 500;
 
-    public ImageProxy(String filename) {
-        this.filename = filename;
-    }
-
-    public void display() {
-        if (realImage == null) {
-            realImage = new RealImage(filename);   // load on first use
+    public void pay(int amount) 
+    {
+        if (amount > limit) 
+        {
+            System.out.println("Transaction declined: exceeds limit"); // access control
+        } 
+        else 
+        {
+            bankAccount.pay(amount); // delegates to the real object
         }
-        realImage.display();
     }
 }
 
-// ===== Main =====
+// Client
 public class ProxyDemo {
     public static void main(String[] args) {
-        // Only proxies are created here — no disk access yet, cheap and fast.
-        Image img1 = new ImageProxy("photo1.jpg");
-        Image img2 = new ImageProxy("photo2.jpg");
-
-        System.out.println("Proxies created. No images loaded yet.\n");
-
-        // First display() triggers the expensive load
-        img1.display();
-        System.out.println();
-
-        // Second display() reuses the already-loaded image (no reload)
-        img1.display();
-        System.out.println();
-
-        // img2 was never displayed, so it was never loaded from disk at all
-        img2.display();
+        Account card = new CreditCard();
+        card.pay(200); // goes through
+        card.pay(700); // declined by proxy before reaching the real account
     }
 }
