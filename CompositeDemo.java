@@ -1,63 +1,40 @@
 import java.util.ArrayList;
 import java.util.List;
 
-// ===== Component (common interface for both leaves and composites) =====
+// Component
 interface FileSystemItem {
-    void show(String indent);
+    int getSize();
 }
 
-// ===== Leaf (has no children) =====
-class Document implements FileSystemItem {
-    private final String name;
-    public Document(String name) { this.name = name; }
-    public void show(String indent) {
-        System.out.println(indent + "- " + name);
-    }
+// Leaf
+class File implements FileSystemItem {
+    private final int size;
+    public File(int size) { this.size = size; }
+    public int getSize() { return size; }
 }
 
-// ===== Composite (can contain other Components — including other Composites) =====
+// Composite
 class Folder implements FileSystemItem {
-    private final String name;
-    private final List<FileSystemItem> children = new ArrayList<>();
+    private final List<FileSystemItem> items = new ArrayList<>();
 
-    public Folder(String name) { this.name = name; }
+    public void add(FileSystemItem item) { items.add(item); }
 
-    public void add(FileSystemItem item) { children.add(item); }
-
-    public void show(String indent) {
-        System.out.println(indent + "+ " + name);
-        for (FileSystemItem child : children) {
-            child.show(indent + "   ");
-        }
+    public int getSize() {
+        return items.stream().mapToInt(FileSystemItem::getSize).sum(); // replaces manual loop
     }
 }
 
-// ===== Main =====
+// Client
 public class CompositeDemo {
     public static void main(String[] args) {
-        // Build a tree:
-        //   root
-        //   ├── docs
-        //   │    ├── resume.pdf
-        //   │    └── notes.txt
-        //   ├── pics
-        //   │    └── vacation.jpg
-        //   └── readme.md
+        Folder subFolder = new Folder();
+        subFolder.add(new File(50));
+        subFolder.add(new File(30));
 
-        Folder root = new Folder("root");
-        Folder docs = new Folder("docs");
-        Folder pics = new Folder("pics");
+        Folder root = new Folder();
+        root.add(new File(100));
+        root.add(subFolder); // folder inside a folder
 
-        docs.add(new Document("resume.pdf"));
-        docs.add(new Document("notes.txt"));
-
-        pics.add(new Document("vacation.jpg"));
-
-        root.add(docs);
-        root.add(pics);
-        root.add(new Document("readme.md"));
-
-        // Treat the entire tree the same way you'd treat a single document.
-        root.show("");
+        System.out.println("Total size: " + root.getSize()); // 180, computed recursively
     }
 }
