@@ -19,13 +19,12 @@ class WalkingStrategy implements RouteStrategy {
 class Navigator {
     private RouteStrategy strategy;
 
-    public void setStrategy(RouteStrategy strategy) { this.strategy = strategy; }
+    public void setStrategy(RouteStrategy strategy) 
+    { this.strategy = strategy; }
 
-    public void navigate(String from, String to) {
-        strategy.buildRoute(from, to); // delegates without knowing the algorithm details
-    }
+    public void navigate(String from, String to) 
+    {strategy.buildRoute(from, to);} // delegates without knowing the algorithm details
 }
-
 // Client
 public class StrategyDemo {
     public static void main(String[] args) {
