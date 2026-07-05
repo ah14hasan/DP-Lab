@@ -1,54 +1,33 @@
-// ===== Implementor (the "implementation" side of the bridge) =====
-interface Color {
-    String fill();
+// Implementor
+interface Device {
+    void turnOn();
 }
 
-// ===== Concrete Implementors =====
-class RedColor implements Color {
-    public String fill() { return "red"; }
+// ConcreteImplementor
+class TV implements Device {
+    public void turnOn() 
+    { System.out.println("TV is turning on"); }
+}
+class Radio implements Device {
+    public void turnOn() 
+    { System.out.println("Radio is turning on"); }
 }
 
-class BlueColor implements Color {
-    public String fill() { return "blue"; }
+// Abstraction
+class RemoteControl {
+    private final Device device; // the "bridge" to the implementation
+
+    public RemoteControl(Device device) 
+    { this.device = device; }
+
+    public void power() 
+    { device.turnOn(); }
 }
 
-// ===== Abstraction (holds a reference to an Implementor — this IS the bridge) =====
-abstract class Shape {
-    protected Color color;   // the "bridge" link to the implementation
-
-    protected Shape(Color color) {
-        this.color = color;
-    }
-
-    public abstract void draw();
-}
-
-// ===== Refined Abstractions =====
-class Circle extends Shape {
-    public Circle(Color color) { super(color); }
-    public void draw() {
-        System.out.println("Drawing a " + color.fill() + " circle.");
-    }
-}
-
-class Square extends Shape {
-    public Square(Color color) { super(color); }
-    public void draw() {
-        System.out.println("Drawing a " + color.fill() + " square.");
-    }
-}
-
-// ===== Main =====
+// Client
 public class BridgeDemo {
     public static void main(String[] args) {
-        // Mix and match shapes with colors freely — no need for
-        // RedCircle, BlueCircle, RedSquare, BlueSquare classes.
-        Shape redCircle  = new Circle(new RedColor());
-        Shape blueCircle = new Circle(new BlueColor());
-        Shape blueSquare = new Square(new BlueColor());
-
-        redCircle.draw();
-        blueCircle.draw();
-        blueSquare.draw();
+        new RemoteControl(new TV()).power();    // same remote class, different device
+        new RemoteControl(new Radio()).power();
     }
 }
